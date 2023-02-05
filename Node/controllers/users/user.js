@@ -6,9 +6,10 @@ const { userSchema } = require("../../models/user/user");
 const user_details = 'user_details'
 
 class User {
-    constructor(payload, params) {
+    constructor(payload, params, files) {
 		this.payload = payload;
 		this.params = params;
+        this.files = files;
 		this.mongoQuery = new MongoQuery();
         this.commonUtility = new CommonUtility();
         this.db = mongoClient.getDb().db('user-crud');
@@ -20,10 +21,22 @@ class User {
             let response = [];
 
             const validatedData = this.commonUtility.validateSchema(
-                this.payload,
+                this.payload.data,
                 userSchema.addUser()
             );
-			let id = await this.commonUtility.getNextUserIdValue('counters', "user_id")
+            let email_query = {
+                query : {
+                    email : validatedData.email
+                }
+            }
+
+            let emailData = await this.mongoQuery.get(email_query, user_details);
+            if(emailData && emailData.length) {
+                throw Error("Email id already exists", 500, "createUser")
+            }
+            
+			let file_path = await this.commonUtility.uploadFile(this.files.profile_image)
+            let id = await this.commonUtility.getNextUserIdValue('counters', "user_id");
 
             let query = {
                 query : {
@@ -32,11 +45,12 @@ class User {
                     last_name : validatedData.last_name,
                     email : validatedData.email,
                     phone_no : validatedData.phone_no,
+                    file_path : file_path[0]
                 }
             }
             
 
-            response = await this.mongoQuery.insertOne(query, 'user_details')
+            response = await this.mongoQuery.insertOne(query, user_details)
 
 
             return "user added";
@@ -51,13 +65,13 @@ class User {
         try {
             let query_data = {
                 query:{},
-                projection :{}
+                projection :{_id:0}
             }
 
             let response = await this.mongoQuery.get(query_data, user_details);
             return response;
         } catch(error) {
-            throw new Error(error)
+            throw error
         }
     }
 
@@ -76,7 +90,7 @@ class User {
             let response = await this.mongoQuery.get(query_data, user_details);
             return response;
         } catch(error) {
-            throw new Error(error)
+            throw error
         }
     }
 
@@ -86,7 +100,23 @@ class User {
                 this.params,
                 userSchema.getUser()
             );
+            this.payload.user_data = JSON.parse(this.payload.user_data )
+            let email_query = {
+                query : {
+                    email :  this.payload.user_data.email,
+                    id : {$ne : Number(validatedData.id)}
+                }
+            }
 
+            let emailData = await this.mongoQuery.get(email_query, user_details);
+            if(emailData && emailData.length) {
+                throw Error("Email id already exists", 500, "createUser")
+            }
+            if(this.files &&this.files.profile_image ) {
+                let file_path = await this.commonUtility.uploadFile(this.files.profile_image);
+                this.payload.user_data.file_path = file_path[0]
+            }
+            
             let query_data = {
                 query:{ id : Number(validatedData.id)},
                 update :{
@@ -98,7 +128,7 @@ class User {
             return response;
 
         } catch(error) {
-            throw new Error()
+            throw error
         }
     }
 
@@ -117,7 +147,7 @@ class User {
             let response = await this.mongoQuery.deleteOne(query_data, user_details);
             return response;
         } catch(error) {
-            throw new Error(error)
+            throw error
         }
     }
 }

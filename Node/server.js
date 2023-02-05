@@ -4,6 +4,8 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const routes = require('./routes/index')
 const mongoUtil = require('./db/connection')
+const fileUpload = require('express-fileupload');
+
 const PORT = 3000
 
 mongoUtil.connectToServer().then(
@@ -18,13 +20,14 @@ mongoUtil.connectToServer().then(
 
 const app = express();
 app.use(cors());
+app.use(fileUpload({}));
+
 app.use(
   bodyParser.urlencoded({
     extended: true
   })
 )
 app.use(bodyParser.json());
-// app.use('/user/content', express.static(path.join(__dirname, 'content')));
 global.appRootDirectory = __dirname;
 
 app.use('/user', routes);
