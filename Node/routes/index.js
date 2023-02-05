@@ -7,7 +7,7 @@ router.use(async (req, res, next) => {
     if (host === 'http://localhost:4200' || host === 'localhost') {
         next();
     } else {
-        throw new Error("failed");
+        throw new Error("Unauthorised");
     }
 });
 
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/create', async (req, res) => {
     try {
-      const user = new User(req.body);
+      const user = new User(req.body, req.params, req.files);
       const response = await user.createUser();
        res.send({ data: response, success: true });
     } catch (error) {
@@ -45,11 +45,11 @@ router.post('/create', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-      const user = new User(req.body,req.params);
+      const user = new User(req.body, req.params, req.files);
       const response = await user.updateUser();
        res.send({ data: response, success: true });
     } catch (error) {
-      res.status(error.statusCode || 500).send({ success: false, message: error});
+      res.status(error.statusCode || 500).send({ success: false, message: error.message});
     }
 });
 
