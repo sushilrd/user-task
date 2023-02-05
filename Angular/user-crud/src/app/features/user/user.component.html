@@ -1,0 +1,22 @@
+<table class="table table-striped">
+  <tr>
+    <th>ID</th>
+    <th>First Name</th>
+    <th>Email</th>
+    <th colspan="2">Actions</th>
+  </tr>
+  <tr *ngFor="let user of users">
+    <td>{{user.id}}</td>
+    <td>{{user.first_name}}</td>
+    <td>{{user.email}}</td>
+    <td>
+      <button style="color: #4CAF50;" class="glyphicon glyphicon-pencil" [routerLink]="['/view',user.id]">View</button>
+    </td>
+    <td>
+      <button style="color: #4CAF50;" class="glyphicon glyphicon-pencil" [routerLink]="['/update',user.id]">Update</button>
+    </td>
+    <td>
+      <button style="color: red;" class="glyphicon glyphicon-trash" (click)="deleteUser(user)" >Delete</button>
+    </td>
+  </tr>
+</table>

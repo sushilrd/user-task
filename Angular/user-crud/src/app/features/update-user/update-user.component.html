@@ -1,0 +1,52 @@
+<div class="container">
+
+    <div class="my-3">
+        <h4>Update User</h4>
+        <form [formGroup]="userForm" (ngSubmit)="submit()">
+            <div class="form-group">
+                <label for="title">First Name <span class="req">*</span> </label>
+                <input type="text" formControlName="first_name" class="form-control" id="first_name" name="first_name"
+                    aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Last Name <span class="req">*</span></label>
+                <input type="text" formControlName="last_name" class="form-control" id="last_name" name="last_name"
+                    aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Email <span class="req">*</span></label>
+                <input type="text" formControlName="email" class="form-control" id="email" name="email"
+                    aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Phone Number <span class="req">*</span></label>
+                <input type="text" formControlName="phone_no" class="form-control" id="phone_no" name="phone_no"
+                    aria-describedby="emailHelp">
+            </div>
+            <div *ngIf="userForm.get('phone_no')?.errors?.pattern && submitted">
+                <span class="error-text"> Please enter valid phone number</span>
+            </div>
+            <div>
+                <div class="custom-file" >
+                  <input type="file" class="custom-file-input" id="transfer_confirmation" aria-describedby="inputGroup" (change)="fileInput($event)">
+                  <label class="custom-file-label"  *ngIf="!selected_transfer_confirmation" for="transfer_confirmation">Upload Profile image
+                    <span class="req">*</span></label>
+                  <label class="custom-file-label" *ngIf="selected_transfer_confirmation" for="transfer_confirmation">{{ selected_transfer_confirmation }}<span class="req">*</span></label>
+                </div>
+                <!-- <div class="error-text" *ngIf="!isTransferFileSelected && submitted">
+                  {{isTransferFileErrorMsg}}
+                </div> -->
+                <div class="note">
+                  <p><strong>Accepted file types:<span class="req">*</span></strong>  {{allowedFilesString}}</p>
+                </div>
+              </div>
+            <div *ngIf="!userForm.valid && submitted">
+                <span class="error-text"> Please check all fields</span>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Update User</button>
+        </form>
+    </div>
+</div>

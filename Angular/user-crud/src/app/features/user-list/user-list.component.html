@@ -1,0 +1,9 @@
+<div class="container">
+    <app-add-user (userAdd)="addUser($event)"></app-add-user>
+    <h4>User list</h4>
+    <div *ngIf="users?.length===0; else elseBlock">No users to display</div>
+    <ng-template #elseBlock>
+            <app-user [users]="users" [i]=1 (usersDelete)="deleteUser($event)">
+            </app-user>
+    </ng-template>
+</div>
