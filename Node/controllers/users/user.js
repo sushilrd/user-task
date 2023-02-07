@@ -4,6 +4,7 @@ const MongoQuery = require("../../utilities/mongo_query");
 const CommonUtility = require('../../utilities/common_utility');
 const { userSchema } = require("../../models/user/user");
 const user_details = 'user_details'
+const randomstring = require("randomstring");
 
 class User {
     constructor(payload, params, files) {
@@ -34,9 +35,34 @@ class User {
             if(emailData && emailData.length) {
                 throw Error("Email id already exists", 500, "createUser")
             }
-            
-			let file_path = await this.commonUtility.uploadFile(this.files.profile_image)
-            let id = await this.commonUtility.getNextUserIdValue('counters', "user_id");
+            let file_path =[];
+            if(this.files && this.files.length) {
+                file_path = await this.commonUtility.uploadFile(this.files.profile_image);
+            }
+            // let id = await this.commonUtility.getNextUserIdValue('counters', "user_id");
+            let is_unique_user_id = true;
+            let id ;
+            do {
+                let randomUserId = randomstring.generate({
+                    charset: "0123456789",
+                    length: 2
+                });
+
+                id = Number(randomUserId);
+
+                let user_query = {
+                    query : {
+                        id: id
+                    },
+                    projection :{}
+                }
+
+                let user_data = await this.mongoQuery.get(user_query, user_details);
+                if(user_data && user_data.length) {
+                    is_unique_user_id = false;
+                }
+              }
+              while (!is_unique_user_id);
 
             let query = {
                 query : {
